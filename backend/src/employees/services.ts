@@ -111,3 +111,24 @@ export const editEmployeeDetails = async (
     return res.status(500).json({ error: "Failed to edit employee details!" });
   }
 };
+
+export const deleteEmployee = async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id);
+
+    if (!id)
+      return res
+        .status(404)
+        .json({ message: "Please provide id to fetch employee details!" });
+
+    await db.delete(employeeTable).where(eq(employeeTable.id, id));
+
+    return res.status(200).json({
+      message: "Employee deleted successfully!",
+    });
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({ error: "Failed to edit employee details!" });
+  }
+};

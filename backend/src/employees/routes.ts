@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   addEmployee,
+  deleteEmployee,
   editEmployeeDetails,
   getAllEmployees,
   getEmployee,
@@ -16,6 +17,6 @@ employeeRouter.get("/:id", getEmployee);
 
 employeeRouter.put("/updateEmployee/:id", editEmployeeDetails);
 
-// employeeRouter.delete("/deleteEmployee/:id");
+employeeRouter.delete("/deleteEmployee/:id", deleteEmployee);
 
 export default employeeRouter;
