@@ -4,6 +4,7 @@ import { Request, Response } from "express";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { eq } from "drizzle-orm";
 import { employeeTable } from "../db/schema";
+import { UpdateEmployee } from "./models";
 
 const client = postgres(process.env.DATABASE_URL!);
 export const db = drizzle(client);
@@ -69,5 +70,44 @@ export const getEmployee = async (req: Request, res: Response) => {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Failed to fetch employee details!" });
+  }
+};
+
+export const editEmployeeDetails = async (
+  req: Request<{ id: string }, {}, UpdateEmployee>,
+  res: Response
+) => {
+  try {
+    const id = parseInt(req.params.id);
+
+    const body = req.body;
+
+    const updateData = Object.fromEntries(
+      Object.entries(body).filter(([_, value]) => value !== undefined)
+    );
+
+    updateData.updated_at = new Date();
+
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ error: "Nothing to update!!" });
+    }
+
+    const updatedEmployee = await db
+      .update(employeeTable)
+      .set(updateData)
+      .where(eq(employeeTable.id, id))
+      .returning();
+
+    if (updatedEmployee.length === 0)
+      return res.status(404).json({ error: "Employee not found!!" });
+
+    return res.status(200).json({
+      message: "Employee details updated successfully!",
+      data: updatedEmployee[0],
+    });
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({ error: "Failed to edit employee details!" });
   }
 };
